@@ -1,4 +1,4 @@
-# 🐱🐶 Cat vs Dog Image Classification with PyTorch
+# Cat vs Dog Image Classification with PyTorch
 
 A hands-on **CNN-based Cat vs Dog image classification** project built with **PyTorch**.
 
@@ -158,7 +158,7 @@ For the same general augmented configuration, batch size 32 produced a higher me
 
 ---
 
-# 📉 Learning Rate Experiment
+#  Learning Rate Experiment
 
 The main optimizer used was **Adam**.
 
@@ -186,23 +186,10 @@ This demonstrates that learning rate should be chosen together with the optimize
 
 ---
 
-## Training Configuration
-
-Typical settings:
-
-```text
-Optimizer     : Adam
-Learning Rate : 0.001
-Image Size    : 256 × 256
-Loss          : BCEWithLogitsLoss
-Device        : CUDA when available
-GPU           : NVIDIA RTX 3060
-```
-
 Epochs explored:
 
 ```text
-5, 10, 15, 20
+10, 15, 20
 ```
 
 Batch sizes explored:
@@ -210,175 +197,3 @@ Batch sizes explored:
 ```text
 32, 64, 128
 ```
-
----
-
-## CUDA
-
-CUDA is used when available:
-
-```python
-device = torch.device(
-    "cuda" if torch.cuda.is_available() else "cpu"
-)
-
-model = model.to(device)
-```
-
-Training was performed on an **NVIDIA RTX 3060**.
-
----
-
-## Predicting a New Image
-
-A new image can be passed through the same preprocessing used for the test set:
-
-```text
-New image
-   ↓
-Read image
-   ↓
-RGB
-   ↓
-Resize
-   ↓
-ToTensor
-   ↓
-Add batch dimension
-   ↓
-CNN
-   ↓
-Sigmoid
-   ↓
-Cat / Dog
-```
-
-Example:
-
-```python
-image = Image.open("new_image.jpg").convert("RGB")
-image = test_transform(image)
-image = image.unsqueeze(0)
-
-model.eval()
-
-with torch.no_grad():
-    output = model(image.to(device))
-    probability = torch.sigmoid(output)
-    prediction = (probability >= 0.5).long().item()
-
-print("Dog" if prediction == 1 else "Cat")
-```
-
----
-
-# 📊 Key Findings
-
-### Data augmentation
-
-Stronger augmentation makes training harder because the model sees a wider variety of images.
-
-### Dropout
-
-Dropout reduced training accuracy, acting as a regularization mechanism.
-
-### Batch Normalization
-
-BatchNorm changed the training dynamics and, together with Dropout, produced a smaller train-test gap in the experiments.
-
-### More epochs
-
-Longer training helped the augmented model. In particular:
-
-```text
-15 epochs → 79.72% test accuracy
-20 epochs → 85.28% test accuracy
-```
-
-for the recorded batch-size-32 augmented setup.
-
-### Batch size
-
-In the recorded 20-epoch augmented experiment:
-
-```text
-Batch 32 → 85.28%
-Batch 64 → 83.64%
-```
-
----
-
-## ⚠️ Important Experimental Note
-
-The normal test set was not randomly augmented.
-
-Therefore, these test accuracies measure performance on **normal unseen images**. They do not directly measure robustness to rotated or otherwise transformed images.
-
-A separate test set with controlled transformations would be needed to evaluate augmentation-specific robustness.
-
----
-
-# 🏆 Best Measured Result
-
-The highest measured test accuracy in the experiments recorded here was:
-
-## **85.28%**
-
-Configuration:
-
-```text
-Dropout       : 0.1
-BatchNorm     : Yes
-Rotation      : 90°
-Random Affine : Yes
-Epochs        : 20
-Batch Size    : 32
-```
-
-This is the best result **among the configurations tested so far**.
-
----
-
-## 🛠️ Technologies
-
-- Python
-- PyTorch
-- TorchVision
-- NumPy
-- PIL
-- Matplotlib
-- CUDA
-
----
-
-## 📁 Project Structure
-
-```text
-Cat-Dog-CNN/
-│
-├── dataset/
-│   └── PetImages/
-│       ├── Cat/
-│       └── Dog/
-│
-├── notebooks/
-│   └── cat_dog_cnn.ipynb
-│
-├── models/
-│   └── model.pth
-│
-├── README.md
-└── requirements.txt
-```
-
----
-
-## 🚀 Future Experiments
-
-- Compare 10°, 20°, 30°, and 90° rotation
-- Test the models on rotated test images
-- Compare augmentation techniques individually
-- Explore learning-rate scheduling
-- Compare ReLU and LeakyReLU
-- Measure images/second and epoch time
-- Compare the custom CNN with transfer learning models such as ResNet or MobileNet
